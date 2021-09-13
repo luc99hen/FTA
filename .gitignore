@@ -32,3 +32,6 @@
 *.exe
 *.out
 *.app
+
+# CMake 
+build

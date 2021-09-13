@@ -31,7 +31,8 @@ END TYPE pointrectangle_type
 
 INTERFACE
 
-! this is the result variable  https://stackoverflow.com/a/31061870
+! bind(c, name="") is used to declare a C function in Fortran https://stackoverflow.com/a/18501301
+! `this` is the result variable for function return val https://stackoverflow.com/a/31061870
 FUNCTION C_pointrectangle_new (a) result(this) bind(C, name="pointrectangle__new")
     import 
     TYPE(C_ptr) :: this

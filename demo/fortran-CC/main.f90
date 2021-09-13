@@ -28,7 +28,7 @@ program pointrectangle_main
     write(*,*) '-------------------------------------'
 
     write(*,*) 'Center Point x: ', center%x
-    write(*,*) 'Center Point x: ', center%y
+    write(*,*) 'Center Point y: ', center%y
     write(*,*) 'Area', area
 
     call delete(rect)
