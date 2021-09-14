@@ -51,3 +51,10 @@ pair%x = 0.5
 Any *external function* to be used should be listed in an *interface block* along with declaration of its arguments and their types and the type of the function value.
 
 An *external function* is a function not contained in any program, function or module.
+
+
+---
+
+## reference
+1. [Fortran语法简述](https://zhuanlan.zhihu.com/p/367443139)
+2. [Fortran-C互操作接口](https://docs.oracle.com/cd/E19957-01/805-4940/6j4m1u7qn/index.html)
