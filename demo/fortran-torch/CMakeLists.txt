@@ -25,11 +25,15 @@ include_directories(${PROJECT_BINARY_DIR})
 # c library
 add_library(call_ts_cpp SHARED call_ts.cpp)
 
+# fortran library
+add_library(torch_wrapper_F SHARED wrapper.f90)
+
 # fortran executable
-add_executable(fortran_calls_ts.x main.f90)
+add_executable(torch_caller main.f90)
 
 # linked against c library
-target_link_libraries(fortran_calls_ts.x call_ts_cpp)
+target_link_libraries(torch_caller torch_wrapper_F)
+target_link_libraries(torch_wrapper_F call_ts_cpp)
 target_link_libraries(call_ts_cpp "${TORCH_LIBRARIES}")
 
 # we let cmake generate the export header
@@ -39,4 +43,4 @@ generate_export_header(call_ts_cpp BASE_NAME call_ts)
 install(TARGETS call_ts_cpp LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 install(FILES call_ts.h ${PROJECT_BINARY_DIR}/call_ts_export.h DESTINATION include)
 
-set_property(TARGET fortran_calls_ts.x PROPERTY CXX_STANDARD 14)
+set_property(TARGET torch_caller PROPERTY CXX_STANDARD 14)
