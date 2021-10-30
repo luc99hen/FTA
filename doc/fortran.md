@@ -6,6 +6,10 @@ USE namespace, ONLY: paras
 USE namespace, name => rename
 ```
 
+### [module](https://docs.oracle.com/cd/E19205-01/819-5263/aevog/index.html)
+Compiling a file containing a F95 module generates both an interface file (`.mod` file) and an (`.o`) object file. The compiler looks for the interface file in the current working directory when compiling `USE` modulename statements.
+
+
 ### instrinct modules 
 Fortran 2003 introduced [intrinsic modules](https://riptutorial.com/fortran/example/5650/intrinsic-modules) which provide access to special named constants, derived types and module procedures.
 
