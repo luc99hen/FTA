@@ -1,4 +1,24 @@
-## `use`
+## Module
+[Module](https://www.tutorialspoint.com/fortran/fortran_modules.htm) provides you a way of splitting your programs between multiple files. It is used for:
+- Packaging subprograms, data and interface blocks.
+- Defining global data that can be used by more than one routine.
+- Declaring variables that can be made available within any routines you choose.
+- Importing a module entirely, for use, into another program or subroutine.
+
+### Module Syntax
+A module consists of two parts:
+- a specification part for statements declaration
+- a `contains` part for subroutine and function definitions
+
+```Fortran
+module name     
+   [statement declarations]  
+   [contains [subroutine and function definitions] ] 
+end module [name]
+```
+
+
+#### `use`
 
 ```fortran
 USE namespace
@@ -6,8 +26,11 @@ USE namespace, ONLY: paras
 USE namespace, name => rename
 ```
 
-### [module](https://docs.oracle.com/cd/E19205-01/819-5263/aevog/index.html)
+> Use `ONLY` as much as possible is a [good practice](https://stackoverflow.com/questions/3874585/emulating-namespaces-in-fortran-90)
+
+### [Module Usage](https://docs.oracle.com/cd/E19205-01/819-5263/aevog/index.html)
 Compiling a file containing a F95 module generates both an interface file (`.mod` file) and an (`.o`) object file. The compiler looks for the interface file in the current working directory when compiling `USE` modulename statements.
+
 
 
 ### instrinct modules 

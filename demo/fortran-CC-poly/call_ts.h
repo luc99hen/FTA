@@ -14,7 +14,7 @@ extern "C"
 #endif
 
     CALL_TS_API
-    int resnet_call(float input[2][2]);
+    int resnet_call(float *input);
 
 #ifdef __cplusplus
 }
