@@ -24,11 +24,11 @@ int resnet_call(float *input)
 
     // create a vector of inputs
     std::vector<torch::jit::IValue> inputs;
-    // parse the array in Fortran mem layout (reverse dimension order)
+    // parse the array in Fortran mem layout (reverse the dimension order)
     auto input_tensor = torch::from_blob(input, {224, 224, 3, 1});
 
     // use GPU
-    // inputs_tensor.to(at::kCUDA);
+    // input_tensor.to(at::kCUDA);
     // module.to(at::kCUDA);
 
     // permute the array mem layout from Fortran to C
@@ -38,8 +38,6 @@ int resnet_call(float *input)
     // Execute the model and turn its output into a tensor.
     at::Tensor output = module.forward(inputs).toTensor();
     std::cout << output.slice(/*dim=*/1, /*start=*/0, /*end=*/5) << '\n';
-
-    std::cout << "ok\n";
 
     return 1;
 }

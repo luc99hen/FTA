@@ -4,3 +4,10 @@ FTB is a Fortran-Torch-Bridge aimed for integrating deep learning model into For
 
 - [Docker && nvidia-container-runtime](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#getting-started)
 - 
+
+# test
+
+Phased testing
+- libtorch basic operation 
+- cpu/gpu
+- different input
