@@ -129,11 +129,11 @@ int resnet32::forward(void *input_data, void *output_data)
     // parse the array in Fortran mem layout (reverse the dimension order)
     //  according to its type
     at::Tensor input_tensor;
-    input_tensor = torch::from_blob((double *)input_data, {224, 3, 1}); // generate
+    input_tensor = torch::from_blob((double *)input_data, {448, 224, 3, 1}); // generate
 
     // permute the array mem layout from Fortran to C
     // reverse all dimensions order
-    input_tensor = input_tensor.permute({2, 1, 0}); // generate
+    input_tensor = input_tensor.permute({3, 2, 1, 0}); // generate
 
     // use GPU
     if (use_gpu)

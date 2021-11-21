@@ -12,7 +12,7 @@ program  main
     INTEGER :: res
     REAL(C_float) :: input(1, 3, 224, 224) = 1.0
     REAL :: output(1, 1000)
-    INTEGER(C_INT) :: flag = 0
+    INTEGER(C_INT) :: flag = 1
 
 
     model_loc = "/home/dl/luc/FTB/demo/lib/resnet.pt"//CHAR(0)  ! CHAR(0) is necessary for C string termination 

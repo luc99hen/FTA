@@ -35,7 +35,7 @@ module torch_wrapper
         import 
         TYPE(C_ptr), value :: this
         INTEGER(C_int) :: flag
-        REAL(C_double) :: input(1, 3, 224)           ! generate
+        REAL(C_double) :: input(1, 3, 224, 448)           ! generate
         REAL(C_float) :: output(1, 100, 80)        ! generate
     END FUNCTION C_resnet32_forward
 
@@ -82,7 +82,7 @@ module torch_wrapper
 
     function resnet32_forward(this, input, output) result(flag) 
         type(fTorchModel), intent(inout) :: this
-        REAL(C_double) :: input(1, 3, 224)              ! generate
+        REAL(C_double) :: input(1, 3, 224, 448)              ! generate
         REAL(C_float) :: output(1, 100, 80)            ! generate
         INTEGER(C_INT) :: flag
         flag = C_resnet32_forward(this%object, input, output)

@@ -263,6 +263,11 @@ EOF
 function parse_conf() {
     local line_num=0
     local section=''
+    local input_file="$1"
+
+    if [[ -z $input_file ]]; then
+        input_file="./configure.conf"
+    fi
 
     shopt -s extglob # enable extended globbing
 
@@ -315,7 +320,7 @@ function parse_conf() {
         fi
 
     done \
-        <"$1"
+        <"$input_file"
 
     if [[ "${section}" ]]; then
         generate_wrapper_file "${section}"
@@ -323,6 +328,8 @@ function parse_conf() {
 }
 
 function precompile_init() {
+    echo
+    echo "------------------------"
     echo "PRECOMPILE Stage Start!"
     echo "------------------------"
 
@@ -369,7 +376,71 @@ EOF
 }
 
 function precompile_finish() {
+    echo "------------------------"
     echo "PRECOMPILE Stage Finish!"
+    echo "------------------------"
+}
+
+function compile_start() {
+    echo
+    echo "------------------------"
+    echo "COMPILE Stage Start!"
+    echo "------------------------"
+    if [ -d "build" ]; then
+        print_log "build directory already exist, delete it"
+        rm -rf ./build
+    fi
+    mkdir build && cd build
+}
+
+function do_compile() {
+    local libtorch_path
+    local compiler_option
+    local cxx_compiler
+    local fortran_compiler
+
+    # set libtorch path
+    echo "Please set the libtorch library path in your computer"
+    read libtorch_path
+    while [[ -z ${libtorch_path} ]]; do
+        print_log "libtorch path shouldn't be empty"
+        echo "Please set the libtorch library path in your computer"
+        read libtorch_path
+    done
+
+    # set compiler option
+    echo "Please choose your compiler(1/2): 1. gcc  2. icc"
+    read compiler_option
+    while [[ $compiler_option != 1 && $compiler_option != 2 ]]; do
+        print_log "compiler option should be either 1 or 2"
+        echo "Please choose your compiler(1/2): 1. gcc  2. icc"
+        read compiler_option
+    done
+    if [[ $compiler_option == 1 ]]; then
+        cxx_compiler="c++"
+        fortran_compiler="gfortran"
+    else
+        cxx_compiler="icc"
+        fortran_compiler="ifort"
+    fi
+
+    # cmake generate
+    cmake -DCMAKE_PREFIX_PATH=$libtorch_path -DCMAKE_MODULE_PATH=$libtorch_path/share/cmake/Torch -DCMAKE_CXX_COMPILER=$cxx_compiler -DCMAKE_Fortran_COMPILER=$fortran_compiler ..
+    if [ $? -ne 0 ]; then
+        print_error "cmake generate fail; build abort :<\n"
+    fi
+
+    # cmake build
+    cmake --build . --config Release
+    if [ $? -ne 0 ]; then
+        print_error "cmake build fail; build abort :<\n"
+    fi
+}
+
+function compile_end() {
+    echo "------------------------"
+    echo "COMPILE Stage Finish!"
+    echo "------------------------"
 }
 
 ###################
@@ -379,3 +450,7 @@ function precompile_finish() {
 precompile_init
 parse_conf "$1"
 precompile_finish
+
+compile_start
+do_compile
+compile_end
