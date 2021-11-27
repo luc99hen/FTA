@@ -56,7 +56,7 @@ All entities listed in PRIVATE will not be accessible from outside of the module
 ### type
 
 
-### [derived type](https://fortran-lang.org/learn/quickstart/derived_types)
+### [Derived type](https://fortran-lang.org/learn/quickstart/derived_types)
 
 It is a special form of data type that can encapsulate other built-in types as well as other derived type.  It's equivalent to `struct` in C.
 
@@ -73,12 +73,36 @@ pair%i = 1   ! `%` is used to access members of derived type
 pair%x = 0.5
 ```
 
-### [interface](https://pages.mtu.edu/~shene/COURSES/cs201/NOTES/chap06/interface.html)
+### [Interface block](https://pages.mtu.edu/~shene/COURSES/cs201/NOTES/chap06/interface.html)
+
+All functions should be one of:
+- external function, a function not contained in any program or module.
+- internal function, function declared in this file
+- function in modules, `use module`
+
+
+*Interface* is introduced to let the program to know the external function interface.
 
 Any *external function* to be used should be listed in an *interface block* along with declaration of its arguments and their types and the type of the function value.
 
-An *external function* is a function not contained in any program, function or module.
+#### [Generic interface](http://www.personal.psu.edu/jhm/f90/statements/interfac.html)
 
+Fortran's generic programming ability at compile stage.
+
+```fortran
+Interface vector_add
+    Function ivector_add(a,b,n)
+        Implicit none
+        integer, intent(in) :: a(:),b(:),n
+        integer ivector_add(size(a))
+    end function ivector_add
+    function rvector_add(a,b,n)
+        implicit none
+        real, intent(in) :: a(:),b(:),n
+        real rvector_add(size(a))
+    end function rvector_add
+end interface vector_add
+```
 
 ---
 

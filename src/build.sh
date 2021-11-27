@@ -413,7 +413,7 @@ function do_compile() {
     read compiler_option
     while [[ $compiler_option != 1 && $compiler_option != 2 ]]; do
         print_log "compiler option should be either 1 or 2"
-        echo "Please choose your compiler(1/2): 1. gcc  2. icc"
+        echo "Please choose your compiler(1 or 2): 1. gcc  2. icc"
         read compiler_option
     done
     if [[ $compiler_option == 1 ]]; then
