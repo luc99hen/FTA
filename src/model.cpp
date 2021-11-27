@@ -59,7 +59,6 @@ int resnet18::forward(void *input_data, void *output_data)
 
     // Execute the model and turn its output into a tensor.
     at::Tensor output_tensor = module.forward(inputs).toTensor();
-    std::cout << output_tensor.slice(/*dim=*/1, /*start=*/0, /*end=*/5) << '\n';
 
     // permute the array mem layout from C to Fortran
     output_tensor = output_tensor.permute({1, 0}); // generate
@@ -146,7 +145,6 @@ int resnet32::forward(void *input_data, void *output_data)
 
     // Execute the model and turn its output into a tensor.
     at::Tensor output_tensor = module.forward(inputs).toTensor();
-    std::cout << output_tensor.slice(/*dim=*/1, /*start=*/0, /*end=*/5) << '\n';
 
     // permute the array mem layout from C to Fortran
     output_tensor = output_tensor.permute({2, 1, 0}); // generate

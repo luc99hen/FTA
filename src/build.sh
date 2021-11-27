@@ -175,7 +175,6 @@ int ${model_name}::forward(void *input_data, void *output_data)
 
     // Execute the model and turn its output into a tensor.
     at::Tensor output_tensor = module.forward(inputs).toTensor();
-    std::cout << output_tensor.slice(/*dim=*/1, /*start=*/0, /*end=*/5) << '\n';
 
     // permute the array mem layout from C to Fortran
     output_tensor = output_tensor.permute({$(range $((${#output_dim[@]} - 1)) 0 -1)}); // generate
@@ -443,6 +442,28 @@ function compile_end() {
     echo "------------------------"
 }
 
+function test() {
+    echo "------------------------"
+    echo "TEST Stage Start!"
+    echo "------------------------"
+
+    if ./test_cpu; then
+        print_log "FTA CPU test pass!"
+    else
+        print_error "FTA CPU test fail!\n"
+    fi
+
+    if ./test_gpu; then
+        print_log "FTA GPU test pass!"
+    else
+        print_error "FTA GPU test fail!\n"
+    fi
+
+    echo "------------------------"
+    echo "TEST Stage Finish!"
+    echo "------------------------"
+}
+
 ###################
 ## main process
 ###################
@@ -454,3 +475,5 @@ precompile_finish
 compile_start
 do_compile
 compile_end
+
+test
