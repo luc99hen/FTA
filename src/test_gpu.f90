@@ -10,7 +10,7 @@ program  main
     CHARACTER(100), TARGET :: model_loc;
     TYPE(ftorchmodel) :: model;
     INTEGER :: res
-    REAL(C_float) :: input(1, 3, 224, 224) = 1.0
+    REAL :: input(1, 3, 224, 224) = 1.0
     REAL :: output(1, 1000)
     INTEGER(C_INT) :: use_gpu = 1
 
@@ -18,9 +18,9 @@ program  main
 
     print *, "Test GPU Start"
 
-    model = resnet18_new(model_loc, use_gpu)
-    res = resnet18_forward(model, input, output)
-    call resnet18_delete(model)
+    model = test_model_new(model_loc, use_gpu)
+    res = test_model_forward(model, input, output)
+    call test_model_delete(model)
 
     print *, output(1, 1)
     print *, "Test GPU End"

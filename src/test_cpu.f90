@@ -22,9 +22,9 @@ program  main
 
     print *, "Test CPU Start"
 
-    model = resnet18_new(model_loc, use_gpu)
-    res = resnet18_forward(model, input, output)
-    call resnet18_delete(model)
+    model = test_model_new(model_loc, use_gpu)
+    res = test_model_forward(model, input, output)
+    call test_model_delete(model)
 
     deallocate (input)
     print *, output(1, 1)

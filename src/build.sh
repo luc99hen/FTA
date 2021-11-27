@@ -279,7 +279,7 @@ function parse_conf() {
         fi
 
         # if match section title
-        if [[ $line =~ ^"["(.+)"]"$ ]]; then
+        if [[ $line =~ ^"["(.+)"]".*$ ]]; then
             # if section is not null
             if [[ "${section}" ]]; then
                 generate_wrapper_file "${section}"
@@ -314,6 +314,10 @@ function parse_conf() {
                 output_dim=(${string_arr[@]})
             elif [[ $key == "output_format" ]]; then
                 output_type=${value}
+            elif [[ $key == "libtorch_path" ]]; then
+                libtorch_path=${value}
+            elif [[ $key == "compiler" ]]; then
+                compiler_option=${value}
             fi
 
         fi
@@ -393,25 +397,17 @@ function compile_start() {
 }
 
 function do_compile() {
-    local libtorch_path
-    local compiler_option
     local cxx_compiler
     local fortran_compiler
 
     # set libtorch path
-    echo "Please set the libtorch library path in your computer"
-    read libtorch_path
     while [[ -z ${libtorch_path} ]]; do
-        print_log "libtorch path shouldn't be empty"
         echo "Please set the libtorch library path in your computer"
         read libtorch_path
     done
 
     # set compiler option
-    echo "Please choose your compiler(1/2): 1. gcc  2. icc"
-    read compiler_option
     while [[ $compiler_option != 1 && $compiler_option != 2 ]]; do
-        print_log "compiler option should be either 1 or 2"
         echo "Please choose your compiler(1 or 2): 1. gcc  2. icc"
         read compiler_option
     done

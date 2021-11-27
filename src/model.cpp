@@ -3,7 +3,7 @@
 
 #include <torch/script.h>
 
-class resnet18
+class test_model
 {
     // torch model
     torch::jit::script::Module module;
@@ -12,14 +12,14 @@ class resnet18
     int use_gpu;
 
 public:
-    resnet18(const char *model_loc, // torchscript model store location (absolute path)
+    test_model(const char *model_loc, // torchscript model store location (absolute path)
                int use_gpu);
 
     int forward(void *input_data, void *output_data);
 };
 
 // constructor
-resnet18::resnet18(const char *model_loc, int gpu)
+test_model::test_model(const char *model_loc, int gpu)
 {
     try
     {
@@ -35,7 +35,7 @@ resnet18::resnet18(const char *model_loc, int gpu)
 }
 
 // call model
-int resnet18::forward(void *input_data, void *output_data)
+int test_model::forward(void *input_data, void *output_data)
 {
     // create a vector of inputs
     std::vector<torch::jit::IValue> inputs;
@@ -73,17 +73,17 @@ int resnet18::forward(void *input_data, void *output_data)
 extern "C"
 {
 
-    resnet18 *resnet18_new(const char *model_loc, int gpu)
+    test_model *test_model_new(const char *model_loc, int gpu)
     {
-        return new resnet18(model_loc, gpu);
+        return new test_model(model_loc, gpu);
     }
 
-    int resnet18_forward(resnet18 *This, void *input, void *output)
+    int test_model_forward(test_model *This, void *input, void *output)
     {
         return This->forward(input, output);
     }
 
-    void resnet18_delete(resnet18 *This)
+    void test_model_delete(test_model *This)
     {
         delete This;
     }

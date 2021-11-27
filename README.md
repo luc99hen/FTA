@@ -22,9 +22,9 @@ program  main
 
     print *, "Torch Start"
 
-    model = resnet18_new(model_loc, use_gpu)
-    res = resnet18_forward(model, input, output)
-    call resnet18_delete(model)
+    model = resnet18_new(model_loc, use_gpu)        ! initialize the model
+    res = resnet18_forward(model, input, output)    ! use the model to perform reasoning task
+    call resnet18_delete(model)                     ! delete this model
 
     print *, output(1, 1)
     print *, "Torch End"
@@ -43,19 +43,9 @@ end program  main
 1. download libtorch 
     1. match CUDA version
     2. C++11 ABI ([compiler compatibility](https://zhuanlan.zhihu.com/p/125197727)) 
-2. define your model in configuration file
+2. define your model in the [configuration file](./src/configure.conf)
     - data type supported: float, int, double
-    - data size format: (a b c)
+    - data size format: a, b, c
     - model name: will be used for interface name
-3. ./build.sh configure.conf
-4. use the torch_wrapper library in your Fortran program
-
-
-# test
-
-Phased testing
-- libtorch basic operation 
-- cpu/gpu
-- different input
-    - shape
-    - allocatable  
+3. ./build.sh
+4. use the `torch_wrapper` library in your Fortran program

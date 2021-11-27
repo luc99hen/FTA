@@ -39,25 +39,25 @@ module torch_wrapper
         REAL(C_float) :: output(1, 100, 80)        ! generate
     END FUNCTION C_resnet32_forward
 
-    FUNCTION C_resnet18_new (model_loc, gpu) result(this) bind(C, name="resnet18_new")
+    FUNCTION C_test_model_new (model_loc, gpu) result(this) bind(C, name="test_model_new")
         import 
         TYPE(C_ptr) :: this
         CHARACTER(C_CHAR) :: model_loc(100)
         INTEGER(C_INT), value :: gpu
-    END FUNCTION C_resnet18_new
+    END FUNCTION C_test_model_new
 
-    SUBROUTINE C_resnet18_delete (this) bind(C, name="resnet18_delete")
+    SUBROUTINE C_test_model_delete (this) bind(C, name="test_model_delete")
         import 
         TYPE(C_ptr), value :: this
     END SUBROUTINE
 
-    FUNCTION C_resnet18_forward (this, input, output) result(flag) bind(C, name="resnet18_forward")
+    FUNCTION C_test_model_forward (this, input, output) result(flag) bind(C, name="test_model_forward")
         import 
         TYPE(C_ptr), value :: this
         INTEGER(C_int) :: flag
         REAL(C_float) :: input(1, 3, 224, 224)           ! generate
         REAL(C_float) :: output(1, 100)        ! generate
-    END FUNCTION C_resnet18_forward
+    END FUNCTION C_test_model_forward
 
     END INTERFACE
     
@@ -88,26 +88,26 @@ module torch_wrapper
         flag = C_resnet32_forward(this%object, input, output)
     end function resnet32_forward
 
-    function resnet18_new(model_loc, gpu) result(this)
+    function test_model_new(model_loc, gpu) result(this)
         character(100), target, intent(in) :: model_loc
         INTEGER(C_INT), intent(in) :: gpu
         type(fTorchModel) :: this
 
-        this%object = C_resnet18_new(model_loc, gpu)
-    end function resnet18_new
+        this%object = C_test_model_new(model_loc, gpu)
+    end function test_model_new
 
-    subroutine resnet18_delete(this)
+    subroutine test_model_delete(this)
         type(fTorchModel), intent(inout) :: this
-        call C_resnet18_delete(this%object)
+        call C_test_model_delete(this%object)
         this%object = C_NULL_ptr    
-    end subroutine resnet18_delete
+    end subroutine test_model_delete
 
-    function resnet18_forward(this, input, output) result(flag) 
+    function test_model_forward(this, input, output) result(flag) 
         type(fTorchModel), intent(inout) :: this
         REAL(C_float) :: input(1, 3, 224, 224)              ! generate
         REAL(C_float) :: output(1, 100)            ! generate
         INTEGER(C_INT) :: flag
-        flag = C_resnet18_forward(this%object, input, output)
-    end function resnet18_forward
+        flag = C_test_model_forward(this%object, input, output)
+    end function test_model_forward
 
 end module torch_wrapper
