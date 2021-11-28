@@ -420,12 +420,14 @@ function do_compile() {
     fi
 
     # cmake generate
+    print_log "cmake -DCMAKE_PREFIX_PATH=${libtorch_path} -DCMAKE_MODULE_PATH=${libtorch_path}/share/cmake/Torch -DCMAKE_CXX_COMPILER=${cxx_compiler} -DCMAKE_Fortran_COMPILER=${fortran_compiler} .."
     cmake -DCMAKE_PREFIX_PATH=$libtorch_path -DCMAKE_MODULE_PATH=$libtorch_path/share/cmake/Torch -DCMAKE_CXX_COMPILER=$cxx_compiler -DCMAKE_Fortran_COMPILER=$fortran_compiler ..
     if [ $? -ne 0 ]; then
         print_error "cmake generate fail; build abort :<\n"
     fi
 
     # cmake build
+    print_log "cmake --build . --config Release"
     cmake --build . --config Release
     if [ $? -ne 0 ]; then
         print_error "cmake build fail; build abort :<\n"

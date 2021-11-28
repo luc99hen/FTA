@@ -37,15 +37,27 @@ end program  main
 - CMake (>=3.0)
 - gcc or icc compiler
 - libtorch
-- [Docker && nvidia-container-runtime](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#getting-started) (OPTIONAL)
+- Docker & nvidia-container-toolkit (OPTIONAL)
 
 # How to Use
+
+## Manually install
+
 1. download libtorch 
-    1. match CUDA version
-    2. C++11 ABI ([compiler compatibility](https://zhuanlan.zhihu.com/p/125197727)) 
+    1. match your local CUDA version
+    2. C++11 ABI ([choose this version if your compiler is `icc`](https://stackoverflow.com/questions/66192285/libtorch-works-with-g-but-fails-with-intel-compiler)) 
 2. define your model in the [configuration file](./src/configure.conf)
     - data type supported: float, int, double
     - data size format: a, b, c
     - model name: will be used for interface name
-3. ./build.sh
+3. run `./build.sh`
 4. use the `torch_wrapper` library in your Fortran program
+
+## install with Docker 
+
+1. install [nvidia-container-toolkit & Docker](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#getting-started)
+2. get image 
+    1. build locally `docker build -t fortran-torch-adapter .`
+    2. Or you can pull from dockerhub `docker pull 1813927768/fortran-torch-adapter:latest`
+3. start the container `docker run -it  --rm --gpus all fortran-torch-adapter /bin/bash`
+4. run `./build.sh` in the container
