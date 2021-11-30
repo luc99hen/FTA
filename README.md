@@ -1,4 +1,4 @@
-FTA is a Fortran-Torch-Adapter aimed for integrating deep learning model into Forrtan environment.
+FTA is a Fortran-Torch-Adapter aimed for integrating deep learning model into Fortran environment.
 
 ```Fortran
 ! fortran program main
@@ -32,16 +32,18 @@ program  main
 end program  main
 ```
 
-# prerequisite
+# Dependencies
 
 - CMake (>=3.0)
-- gcc or icc compiler
-- libtorch
+- gcc or icc compiler 
+- [libtorch](https://pytorch.org/)
 - Docker & nvidia-container-toolkit (OPTIONAL)
 
 # How to Use
 
-## Manually install
+> Notice: we assume you already have a machine with Nvidia Driver installed properly.
+
+## Manually setup
 
 1. download libtorch 
     1. match your local CUDA version
@@ -50,10 +52,10 @@ end program  main
     - data type supported: float, int, double
     - data size format: a, b, c
     - model name: will be used for interface name
-3. run `./build.sh`
+3. run [`./build.sh`](./src/build.sh)
 4. use the `torch_wrapper` library in your Fortran program
 
-## install with Docker 
+## Setup with Docker 
 
 1. install [nvidia-container-toolkit & Docker](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#getting-started)
 2. get image 

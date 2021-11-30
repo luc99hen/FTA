@@ -50,6 +50,15 @@ It should always be used after `program` or `use`, following the implicit none s
 
 All entities listed in PRIVATE will not be accessible from outside of the module and all entities listed in PUBLIC can be accessed from outside of the module. All the others entities, by default, can be accessed from outside of the module.
 
+## `intent`
+
+[`intent` attributes](http://www.personal.psu.edu/jhm/f90/statements/intent.html) specifies what a dummy argument's intended use is inside of a function or subroutine which gives the computer information about the intended usage.
+
+- `intent(in)`: tells the compiler that its will only be used to pass information into this subprogram. As a consequence of specifying `intent(in)`, the variable which appears on the left side will cause an error.
+- `intent(out)`: tell the compiler that this variable that are marked with this designation can only be used to return information. The value of any dummy argument given this attribute will be undefined upon entry to the subprogram.
+- `intent(in out)`: both in & out
+- not specifying any `intent`: [a tricky problem](https://stackoverflow.com/questions/2880537/fortran-intentinout-versus-omitting-intent) handled differently by various compilers
+
 
 ## type && derived type
 
