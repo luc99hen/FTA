@@ -1,0 +1,29 @@
+module torch_wrapper
+
+    use, intrinsic :: ISO_C_Binding
+    implicit none
+
+    ! ---
+    ! C struct declaration
+    ! ---
+
+    ! match TorchModel in model.cpp
+    TYPE fTorchModel
+    PRIVATE
+        TYPE(C_ptr) :: object = C_NULL_ptr
+    END TYPE fTorchModel
+
+    
+    ! ---
+    ! C function declarations
+    ! ---
+    INTERFACE
+
+    END INTERFACE
+    
+    ! ---
+    ! Fortran wrapper routines to interface C wrappers
+    ! ---
+    CONTAINS
+
+end module torch_wrapper

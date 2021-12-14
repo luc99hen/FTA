@@ -1,0 +1,20 @@
+
+    FUNCTION C_${model_name}_new (model_loc, gpu) result(this) bind(C, name=\"${model_name}_new\")
+        import 
+        TYPE(C_ptr) :: this
+        CHARACTER(C_CHAR) :: model_loc(*)
+        INTEGER(C_INT), value :: gpu
+    END FUNCTION C_${model_name}_new
+
+    SUBROUTINE C_${model_name}_delete (this) bind(C, name=\"${model_name}_delete\")
+        import 
+        TYPE(C_ptr), value :: this
+    END SUBROUTINE
+
+    FUNCTION C_${model_name}_forward (this, input, output) result(flag) bind(C, name=\"${model_name}_forward\")
+        import 
+        TYPE(C_ptr), value :: this
+        INTEGER(C_int) :: flag
+        REAL(C_${input_type}) :: input($(arr_to_string ', ' "${input_dim[@]}"))           ! generate
+        REAL(C_${output_type}) :: output($(arr_to_string ', ' "${output_dim[@]}"))        ! generate
+    END FUNCTION C_${model_name}_forward

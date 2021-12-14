@@ -1,0 +1,86 @@
+
+class ${model_name}
+{
+    // torch model
+    torch::jit::script::Module module;
+
+    // whether to use gpu
+    int use_gpu;
+
+public:
+    ${model_name}(const char *model_loc, // torchscript model store location (absolute path)
+               int use_gpu);
+
+    int forward(void *input_data, void *output_data);
+};
+
+// constructor
+${model_name}::${model_name}(const char *model_loc, int gpu)
+{
+    try
+    {
+        module = torch::jit::load(model_loc);
+    }
+    catch (const c10::Error &e)
+    {
+        std::cerr << \"error loading the model\" << std::endl;
+        return;
+    }
+
+    use_gpu = gpu;
+}
+
+// call model
+int ${model_name}::forward(void *input_data, void *output_data)
+{
+    // create a vector of inputs
+    std::vector<torch::jit::IValue> inputs;
+    // parse the array in Fortran mem layout (reverse the dimension order)
+    //  according to its type
+    at::Tensor input_tensor;
+    input_tensor = torch::from_blob((${input_type} *)input_data, {$(arr_to_string ', ' "${c_input_dim[@]}")}); // generate
+
+    // permute the array mem layout from Fortran to C
+    // reverse all dimensions order
+    input_tensor = input_tensor.permute({$(range $((${#input_dim[@]} - 1)) 0 -1)}); // generate
+
+    // use GPU
+    if (use_gpu)
+    {
+        input_tensor = input_tensor.to(at::kCUDA);
+        module.to(at::kCUDA);
+    }
+
+    inputs.push_back(input_tensor);
+
+    // Execute the model and turn its output into a tensor.
+    at::Tensor output_tensor = module.forward(inputs).toTensor();
+
+    // permute the array mem layout from C to Fortran
+    output_tensor = output_tensor.permute({$(range $((${#output_dim[@]} - 1)) 0 -1)}); // generate
+    // convert the discontinuous tensor into a continuous tensor & port it to cpu if possible
+    output_tensor = output_tensor.contiguous().cpu();
+    std::memcpy(output_data, output_tensor.data_ptr(), output_tensor.numel() * sizeof(${output_type})); // generate
+
+    return 1;
+}
+
+// C wrapper interfaces to C++ routines
+extern \"C\"
+{
+
+    ${model_name} *${model_name}_new(const char *model_loc, int gpu)
+    {
+        return new ${model_name}(model_loc, gpu);
+    }
+
+    int ${model_name}_forward(${model_name} *This, void *input, void *output)
+    {
+        return This->forward(input, output);
+    }
+
+    void ${model_name}_delete(${model_name} *This)
+    {
+        delete This;
+    }
+}

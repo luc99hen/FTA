@@ -1,4 +1,5 @@
 .vscode/*
+install/*
 
 # Prerequisites
 *.d
@@ -33,5 +34,5 @@
 *.out
 *.app
 
-# CMake 
+# CMake
 build

@@ -2,7 +2,6 @@
 #include <memory>
 
 #include <torch/script.h>
-
 class test_model
 {
     // torch model
@@ -27,7 +26,7 @@ test_model::test_model(const char *model_loc, int gpu)
     }
     catch (const c10::Error &e)
     {
-        std::cerr << "error loading the model\n";
+        std::cerr << "error loading the model" << std::endl;
         return;
     }
 
@@ -113,7 +112,7 @@ resnet32::resnet32(const char *model_loc, int gpu)
     }
     catch (const c10::Error &e)
     {
-        std::cerr << "error loading the model\n";
+        std::cerr << "error loading the model" << std::endl;
         return;
     }
 

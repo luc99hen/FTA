@@ -118,3 +118,4 @@ end interface vector_add
 ## reference
 1. [Fortran语法简述](https://zhuanlan.zhihu.com/p/367443139)
 2. [Fortran-C互操作接口](https://docs.oracle.com/cd/E19957-01/805-4940/6j4m1u7qn/index.html)
+3. [compiler dialects](https://gcc.gnu.org/onlinedocs/gfortran/Fortran-Dialect-Options.html)

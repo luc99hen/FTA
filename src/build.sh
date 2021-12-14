@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# ./build.sh [configuration_file_path] [output_file_path]
+
+# set -ex
+set -e
 
 ###################
 ## global settings
@@ -6,6 +10,7 @@
 
 cpp_file="model.cpp"
 fortran_file="wrapper.f90"
+output_folder=${2:-$(cd .. && pwd -P)/install}
 
 ###################
 ## utils function
@@ -94,6 +99,12 @@ function range() {
     echo $(seq -s ", " $start $step $end)
 }
 
+# Usage: read_templ temp_file
+# ! Notice: temp_file should have escaped quotes
+function read_templ() {
+    eval "echo \"$(cat $1)\""
+}
+
 ###################
 ## process function
 ###################
@@ -117,143 +128,14 @@ function generate_wrapper_file() {
     fi
 
     # generate C++ model class
-    cat >>${cpp_file} <<-EOF
-
-class ${model_name}
-{
-    // torch model
-    torch::jit::script::Module module;
-
-    // whether to use gpu
-    int use_gpu;
-
-public:
-    ${model_name}(const char *model_loc, // torchscript model store location (absolute path)
-               int use_gpu);
-
-    int forward(void *input_data, void *output_data);
-};
-
-// constructor
-${model_name}::${model_name}(const char *model_loc, int gpu)
-{
-    try
-    {
-        module = torch::jit::load(model_loc);
-    }
-    catch (const c10::Error &e)
-    {
-        std::cerr << "error loading the model\n";
-        return;
-    }
-
-    use_gpu = gpu;
-}
-
-// call model
-int ${model_name}::forward(void *input_data, void *output_data)
-{
-    // create a vector of inputs
-    std::vector<torch::jit::IValue> inputs;
-    // parse the array in Fortran mem layout (reverse the dimension order)
-    //  according to its type
-    at::Tensor input_tensor;
-    input_tensor = torch::from_blob((${input_type} *)input_data, {$(arr_to_string ', ' "${c_input_dim[@]}")}); // generate
-
-    // permute the array mem layout from Fortran to C
-    // reverse all dimensions order
-    input_tensor = input_tensor.permute({$(range $((${#input_dim[@]} - 1)) 0 -1)}); // generate
-
-    // use GPU
-    if (use_gpu)
-    {
-        input_tensor = input_tensor.to(at::kCUDA);
-        module.to(at::kCUDA);
-    }
-
-    inputs.push_back(input_tensor);
-
-    // Execute the model and turn its output into a tensor.
-    at::Tensor output_tensor = module.forward(inputs).toTensor();
-
-    // permute the array mem layout from C to Fortran
-    output_tensor = output_tensor.permute({$(range $((${#output_dim[@]} - 1)) 0 -1)}); // generate
-    // convert the discontinuous tensor into a continuous tensor & port it to cpu if possible
-    output_tensor = output_tensor.contiguous().cpu();
-    std::memcpy(output_data, output_tensor.data_ptr(), output_tensor.numel() * sizeof(${output_type})); // generate
-
-    return 1;
-}
-
-// C wrapper interfaces to C++ routines
-extern "C"
-{
-
-    ${model_name} *${model_name}_new(const char *model_loc, int gpu)
-    {
-        return new ${model_name}(model_loc, gpu);
-    }
-
-    int ${model_name}_forward(${model_name} *This, void *input, void *output)
-    {
-        return This->forward(input, output);
-    }
-
-    void ${model_name}_delete(${model_name} *This)
-    {
-        delete This;
-    }
-}
-EOF
+    read_templ ./template/cpp_body >>${cpp_file}
 
     # generate Fortran file
-    cat <<-EOF | sed -i "/INTERFACE/ r /dev/stdin" ${fortran_file}
 
-    FUNCTION C_${model_name}_new (model_loc, gpu) result(this) bind(C, name="${model_name}_new")
-        import 
-        TYPE(C_ptr) :: this
-        CHARACTER(C_CHAR) :: model_loc(100)
-        INTEGER(C_INT), value :: gpu
-    END FUNCTION C_${model_name}_new
-
-    SUBROUTINE C_${model_name}_delete (this) bind(C, name="${model_name}_delete")
-        import 
-        TYPE(C_ptr), value :: this
-    END SUBROUTINE
-
-    FUNCTION C_${model_name}_forward (this, input, output) result(flag) bind(C, name="${model_name}_forward")
-        import 
-        TYPE(C_ptr), value :: this
-        INTEGER(C_int) :: flag
-        REAL(C_${input_type}) :: input($(arr_to_string ', ' "${input_dim[@]}"))           ! generate
-        REAL(C_${output_type}) :: output($(arr_to_string ', ' "${output_dim[@]}"))        ! generate
-    END FUNCTION C_${model_name}_forward
-EOF
-
-    cat <<-EOF | sed -i "/CONTAINS/ r /dev/stdin" ${fortran_file}
-
-    function ${model_name}_new(model_loc, gpu) result(this)
-        character(100), target, intent(in) :: model_loc
-        INTEGER(C_INT), intent(in) :: gpu
-        type(fTorchModel) :: this
-
-        this%object = C_${model_name}_new(model_loc, gpu)
-    end function ${model_name}_new
-
-    subroutine ${model_name}_delete(this)
-        type(fTorchModel), intent(inout) :: this
-        call C_${model_name}_delete(this%object)
-        this%object = C_NULL_ptr    
-    end subroutine ${model_name}_delete
-
-    function ${model_name}_forward(this, input, output) result(flag) 
-        type(fTorchModel), intent(inout) :: this
-        REAL(C_${input_type}) :: input($(arr_to_string ', ' "${input_dim[@]}"))              ! generate
-        REAL(C_${output_type}) :: output($(arr_to_string ', ' "${output_dim[@]}"))            ! generate
-        INTEGER(C_INT) :: flag
-        flag = C_${model_name}_forward(this%object, input, output)
-    end function ${model_name}_forward
-EOF
+    ## generate extern interfaces (from C++ source)
+    read_templ ./template/fortran_extern_interface | sed -i "/INTERFACE/ r /dev/stdin" ${fortran_file}
+    ## generate interfaces (used by user)
+    read_templ ./template/fortran_interface | sed -i "/CONTAINS/ r /dev/stdin" ${fortran_file}
 
     echo "generate ${section} successfully!"
 }
@@ -338,44 +220,10 @@ function precompile_init() {
 
     # generate header file
     # cpp file
-    cat >${cpp_file} <<EOF
-#include <iostream>
-#include <memory>
+    cat <./template/cpp_header >${cpp_file}
 
-#include <torch/script.h>
-EOF
     # Fortran file
-    cat >${fortran_file} <<EOF
-module torch_wrapper
-
-    use, intrinsic :: ISO_C_Binding
-    implicit none
-
-    ! ---
-    ! C struct declaration
-    ! ---
-
-    ! match TorchModel in model.cpp
-    TYPE fTorchModel
-    PRIVATE
-        TYPE(C_ptr) :: object = C_NULL_ptr
-    END TYPE fTorchModel
-
-    
-    ! ---
-    ! C function declarations
-    ! ---
-    INTERFACE
-
-    END INTERFACE
-    
-    ! ---
-    ! Fortran wrapper routines to interface C wrappers
-    ! ---
-    CONTAINS
-
-end module torch_wrapper
-EOF
+    cat <./template/fortran_header >${fortran_file}
 }
 
 function precompile_finish() {
@@ -420,7 +268,7 @@ function do_compile() {
     fi
 
     # cmake generate
-    print_log "cmake -DCMAKE_PREFIX_PATH=${libtorch_path} -DCMAKE_MODULE_PATH=${libtorch_path}/share/cmake/Torch -DCMAKE_CXX_COMPILER=${cxx_compiler} -DCMAKE_Fortran_COMPILER=${fortran_compiler} .."
+    print_log "cmake -DCMAKE_PREFIX_PATH=${libtorch_path}  -DCMAKE_MODULE_PATH=${libtorch_path}/share/cmake/Torch -DCMAKE_CXX_COMPILER=${cxx_compiler} -DCMAKE_Fortran_COMPILER=${fortran_compiler} .."
     cmake -DCMAKE_PREFIX_PATH=$libtorch_path -DCMAKE_MODULE_PATH=$libtorch_path/share/cmake/Torch -DCMAKE_CXX_COMPILER=$cxx_compiler -DCMAKE_Fortran_COMPILER=$fortran_compiler ..
     if [ $? -ne 0 ]; then
         print_error "cmake generate fail; build abort :<\n"
@@ -435,6 +283,20 @@ function do_compile() {
 }
 
 function compile_end() {
+
+    # move target files into output_folder
+    cd .. # return to src directory
+
+    if [ -d $output_folder ]; then
+        print_log "build directory already exist, delete it"
+        rm -rf $output_folder
+    fi
+
+    mkdir -p "${output_folder}/include"
+    cp -r ./build/bin $output_folder
+    cp -r ./build/lib $output_folder
+    cp ./build/torch_wrapper.mod "${output_folder}/include/"
+
     echo "------------------------"
     echo "COMPILE Stage Finish!"
     echo "------------------------"
@@ -444,6 +306,8 @@ function test() {
     echo "------------------------"
     echo "TEST Stage Start!"
     echo "------------------------"
+
+    cd "$output_folder/bin"
 
     if ./test_cpu; then
         print_log "FTA CPU test pass!"

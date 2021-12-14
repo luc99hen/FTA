@@ -22,7 +22,7 @@ module torch_wrapper
     FUNCTION C_resnet32_new (model_loc, gpu) result(this) bind(C, name="resnet32_new")
         import 
         TYPE(C_ptr) :: this
-        CHARACTER(C_CHAR) :: model_loc(100)
+        CHARACTER(C_CHAR) :: model_loc(*)
         INTEGER(C_INT), value :: gpu
     END FUNCTION C_resnet32_new
 
@@ -42,7 +42,7 @@ module torch_wrapper
     FUNCTION C_test_model_new (model_loc, gpu) result(this) bind(C, name="test_model_new")
         import 
         TYPE(C_ptr) :: this
-        CHARACTER(C_CHAR) :: model_loc(100)
+        CHARACTER(C_CHAR) :: model_loc(*)
         INTEGER(C_INT), value :: gpu
     END FUNCTION C_test_model_new
 
@@ -67,7 +67,7 @@ module torch_wrapper
     CONTAINS
 
     function resnet32_new(model_loc, gpu) result(this)
-        character(100), target, intent(in) :: model_loc
+        character(*), target, intent(in) :: model_loc
         INTEGER(C_INT), intent(in) :: gpu
         type(fTorchModel) :: this
 
@@ -89,7 +89,7 @@ module torch_wrapper
     end function resnet32_forward
 
     function test_model_new(model_loc, gpu) result(this)
-        character(100), target, intent(in) :: model_loc
+        character(*), target, intent(in) :: model_loc
         INTEGER(C_INT), intent(in) :: gpu
         type(fTorchModel) :: this
 

@@ -1,0 +1,22 @@
+
+    function ${model_name}_new(model_loc, gpu) result(this)
+        character(*), target, intent(in) :: model_loc
+        INTEGER(C_INT), intent(in) :: gpu
+        type(fTorchModel) :: this
+
+        this%object = C_${model_name}_new(model_loc, gpu)
+    end function ${model_name}_new
+
+    subroutine ${model_name}_delete(this)
+        type(fTorchModel), intent(inout) :: this
+        call C_${model_name}_delete(this%object)
+        this%object = C_NULL_ptr    
+    end subroutine ${model_name}_delete
+
+    function ${model_name}_forward(this, input, output) result(flag) 
+        type(fTorchModel), intent(inout) :: this
+        REAL(C_${input_type}) :: input($(arr_to_string ', ' "${input_dim[@]}"))              ! generate
+        REAL(C_${output_type}) :: output($(arr_to_string ', ' "${output_dim[@]}"))            ! generate
+        INTEGER(C_INT) :: flag
+        flag = C_${model_name}_forward(this%object, input, output)
+    end function ${model_name}_forward
