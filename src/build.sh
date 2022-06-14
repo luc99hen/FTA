@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ./build.sh [configuration_file_path] [output_file_path]
 
-# set -ex
+#set -ex
 set -e
 
 ###################
@@ -112,9 +112,10 @@ function read_templ() {
 # generating based on the settings
 function generate_wrapper_file() {
     local model_name=$1
-    local c_input_dim
+    local c_input_dim_str
 
-    reverse_arr input_dim c_input_dim
+    c_input_dim_str=$(printf '%s\n' "${input_dim[@]}" | tac | tr '\n' ', '; echo)
+    #reverse_arr input_dim c_input_dim
 
     print_log "model_name:" ${model_name}
     print_log "input_dim: " $(arr_to_string ', ' "${input_dim[@]}")

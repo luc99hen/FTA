@@ -31,6 +31,11 @@ test_model::test_model(const char *model_loc, int gpu)
     }
 
     use_gpu = gpu;
+    if (use_gpu) {
+	module.to(at::kCUDA);
+    } else {
+	module.to(at::kCPU);
+    }
 }
 
 // call model
@@ -41,7 +46,7 @@ int test_model::forward(void *input_data, void *output_data)
     // parse the array in Fortran mem layout (reverse the dimension order)
     //  according to its type
     at::Tensor input_tensor;
-    input_tensor = torch::from_blob((float *)input_data, {224, 224, 3, 1}); // generate
+    input_tensor = torch::from_blob((float *)input_data, {224,224,3,1,}); // generate
 
     // permute the array mem layout from Fortran to C
     // reverse all dimensions order
@@ -51,9 +56,8 @@ int test_model::forward(void *input_data, void *output_data)
     if (use_gpu)
     {
         input_tensor = input_tensor.to(at::kCUDA);
-        module.to(at::kCUDA);
-    }
-
+    } 
+    
     inputs.push_back(input_tensor);
 
     // Execute the model and turn its output into a tensor.
@@ -117,6 +121,11 @@ resnet32::resnet32(const char *model_loc, int gpu)
     }
 
     use_gpu = gpu;
+    if (use_gpu) {
+	module.to(at::kCUDA);
+    } else {
+	module.to(at::kCPU);
+    }
 }
 
 // call model
@@ -127,7 +136,7 @@ int resnet32::forward(void *input_data, void *output_data)
     // parse the array in Fortran mem layout (reverse the dimension order)
     //  according to its type
     at::Tensor input_tensor;
-    input_tensor = torch::from_blob((double *)input_data, {448, 224, 3, 1}); // generate
+    input_tensor = torch::from_blob((double *)input_data, {448,224,3,1,}); // generate
 
     // permute the array mem layout from Fortran to C
     // reverse all dimensions order
@@ -137,9 +146,8 @@ int resnet32::forward(void *input_data, void *output_data)
     if (use_gpu)
     {
         input_tensor = input_tensor.to(at::kCUDA);
-        module.to(at::kCUDA);
-    }
-
+    } 
+    
     inputs.push_back(input_tensor);
 
     // Execute the model and turn its output into a tensor.
