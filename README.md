@@ -1,4 +1,4 @@
-FTA is a Fortran-Torch-Adapter aimed for integrating deep learning model into Fortran environment.
+FTA is a Fortran-Torch-Adapter aimed for integrating deep learning model into Fortran environment. It has been used in replacing parameterization schemes in WRF with a [published paper](https://www.frontiersin.org/journals/earth-science/articles/10.3389/feart.2023.1149566/full)
 
 ```Fortran
 ! fortran program main
